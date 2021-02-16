@@ -19,5 +19,6 @@
     <modules>
         <module>javase5Enhancements</module>
         <module>firstSimpleModuleEx</module>
+        <module>ex1</module>
     </modules>
 </project>
