@@ -20,7 +20,7 @@ public class AppTest {
         assertTrue("app didn't return 1", app.returnOne() == 1);
     }
 
-    //@Test
+    @Test
     public void testFail() {
         //System.out.println("testFail");
         logger.info("testFail");

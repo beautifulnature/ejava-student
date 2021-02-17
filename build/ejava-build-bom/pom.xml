@@ -402,8 +402,8 @@
                   <artifactId>maven-site-plugin</artifactId>
                   <version>${maven-site-plugin.version}</version>
                   <configuration>
-                      <skip>true</skip>
-                      <skipDeploy>true</skipDeploy>
+                      <skip>false</skip>
+                      <skipDeploy>false</skipDeploy>
                   </configuration>
               </plugin>
           </plugins>
