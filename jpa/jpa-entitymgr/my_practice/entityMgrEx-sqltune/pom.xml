@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>myorg.jpa</groupId>
-    <artifactId>entityMgrEx</artifactId>
+    <artifactId>entityMgrEx-sqltune</artifactId>
     <version>5.1.0-SNAPSHOT</version>
 
     <name>EntityManager Exercise DDL</name>
