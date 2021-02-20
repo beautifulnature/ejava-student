@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>myorg.jpa</groupId>
-    <artifactId>entityMgrEx-pu</artifactId>
+    <artifactId>entityMgrEx-testcase</artifactId>
     <version>5.1.0-SNAPSHOT</version>
 
     <name>EntityManager Exercise PU</name>
@@ -46,7 +46,12 @@
                 <groupId>javax.persistence</groupId>
                 <artifactId>javax.persistence-api</artifactId>
                 <version>${javax.persistence-api.version}</version>
-            </dependency>        
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>     
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
@@ -148,7 +153,13 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <scope>provided</scope>
-        </dependency>        
+        </dependency>
+        
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>provided</scope>
+        </dependency>     
 
         <dependency>
             <groupId>org.hibernate</groupId>
