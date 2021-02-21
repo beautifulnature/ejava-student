@@ -6,7 +6,7 @@
     <artifactId>entityMgrEx-testcase</artifactId>
     <version>5.1.0-SNAPSHOT</version>
 
-    <name>EntityManager Exercise PU</name>
+    <name>EntityManager Exercise Testcase</name>
 
    <!-- needed to resolve some hibernate dependencies -->
     <repositories>
@@ -185,7 +185,7 @@
     </dependencies>
 
     <profiles>
-        <profile> <!-- H2 server-based DB -->
+    	<profile> <!-- H2 server-based DB -->
             <id>h2srv</id>
             <properties>
                   <jdbc.driver>org.h2.Driver</jdbc.driver>
