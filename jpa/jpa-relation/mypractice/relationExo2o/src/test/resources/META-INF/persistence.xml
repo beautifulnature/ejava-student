@@ -25,6 +25,8 @@
         <class>myorg.relex.one2one.BoxOffice</class>
         <class>myorg.relex.one2one.Applicant</class>
         <class>myorg.relex.one2one.Application</class>
+        <class>myorg.relex.one2one.Auto</class>
+        <class>myorg.relex.one2one.Driver</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>

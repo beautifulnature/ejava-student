@@ -26,7 +26,7 @@ public class Applicant {
 
 	@OneToOne(mappedBy="applicant", //identifies property on owning side
 			fetch=FetchType.LAZY)
-	@Transient
+	//@Transient
 	private Application application;
 
 	public Applicant() {
