@@ -20,6 +20,11 @@
         <class>myorg.relex.one2one.Member</class>
         <class>myorg.relex.one2one.Employee</class>
         <class>myorg.relex.one2one.Coach</class>
+        <class>myorg.relex.one2one.ShowEvent</class>
+        <class>myorg.relex.one2one.ShowTickets</class>
+        <class>myorg.relex.one2one.BoxOffice</class>
+        <class>myorg.relex.one2one.Applicant</class>
+        <class>myorg.relex.one2one.Application</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>

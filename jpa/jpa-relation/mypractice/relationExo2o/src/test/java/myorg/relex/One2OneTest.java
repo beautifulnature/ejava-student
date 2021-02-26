@@ -2,20 +2,31 @@ package myorg.relex;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Random;
+
+import javax.persistence.TemporalType;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import myorg.relex.one2one.Applicant;
+import myorg.relex.one2one.Application;
+import myorg.relex.one2one.BoxOffice;
 import myorg.relex.one2one.Coach;
 import myorg.relex.one2one.Employee;
 import myorg.relex.one2one.Member;
 import myorg.relex.one2one.Person;
 import myorg.relex.one2one.Player;
+import myorg.relex.one2one.ShowEvent;
+import myorg.relex.one2one.ShowEventPK;
+import myorg.relex.one2one.ShowTickets;
 
 public class One2OneTest extends JPATestBase {
 
@@ -191,7 +202,7 @@ public class One2OneTest extends JPATestBase {
         assertNull("employee not deleted", em.find(Employee.class, employee.getId()));
     }
     
-    @Test
+//    @Test
     public void testOne2OneUniMapsId() {
 
         log.info("*** testOne2OneUniMapsId ***");
@@ -240,4 +251,184 @@ public class One2OneTest extends JPATestBase {
 
         assertNull("coach not deleted", em.find(Coach.class, coach.getId()));
     }
+    
+//    @Test
+    public void testOne2OneUniIdClass() {
+
+        log.info("*** testOneToOneUniIdClass ***");
+
+        Date showDate = new GregorianCalendar(1975+new Random().nextInt(100), Calendar.JANUARY, 1).getTime();
+        Date showTime = new GregorianCalendar(0, 0, 0, 0, 0, 0).getTime();
+        ShowEvent show = new ShowEvent(showDate, showTime);
+        show.setName("Rocky Horror");
+        ShowTickets tickets = new ShowTickets(show); //parent already has natural PK by this point
+        tickets.setTicketsLeft(300);
+
+        em.persist(show);
+        em.persist(tickets);  
+
+        //flush commands to database, clear cache, and pull back new instance
+        em.flush();
+        em.clear();
+
+        ShowTickets tickets2 = em.find(ShowTickets.class, new ShowEventPK(tickets.getDate(), tickets.getTime()));
+
+        log.info("calling parent...");
+
+        assertEquals("unexpected name", tickets.getShow().getName(), tickets2.getShow().getName());
+        
+        Object[] cols = (Object[]) em.createNativeQuery(
+                "select show.date show_date, show.time show_time, " +
+                        "tickets.ticket_date ticket_date, tickets.ticket_time ticket_time, tickets.tickets " +
+                "from RELATIONEX_SHOWEVENT show " +
+                "join RELATIONEX_SHOWTICKETS tickets on show.date = tickets.ticket_date and show.time = tickets.ticket_time " +
+                "where tickets.ticket_date = ?1 and tickets.ticket_time = ?2")
+                .setParameter(1, tickets.getShow().getDate(), TemporalType.DATE)
+                .setParameter(2, toCalendar(tickets.getShow().getTime()), TemporalType.TIME)
+                .getSingleResult();
+        
+        log.info("row=" + Arrays.toString(cols));
+        
+        assertEquals("unexpected show_date", tickets2.getShow().getDate(), (Date)cols[0]);
+        
+        assertEquals("unexpected show_time", tickets2.getShow().getTime(), (Date)cols[1]);
+        
+        assertEquals("unexpected ticket_date", tickets2.getDate(), (Date)cols[2]);
+        
+        assertEquals("unexpected ticket_time", tickets2.getTime(), (Date)cols[3]);
+        
+        assertEquals("unexpected ticketsLeft", tickets2.getTicketsLeft(), ((Number)cols[4]).intValue());
+        
+        em.remove(tickets2);
+        em.remove(tickets2.getShow());
+        em.flush();
+
+        assertNull("tickets not deleted", em.find(ShowEvent.class, new ShowEventPK(show.getDate(), show.getTime())));
+
+        assertNull("show not deleted", em.find(ShowTickets.class, new ShowEventPK(tickets.getDate(), tickets.getTime())));
+    }
+
+	private Calendar toCalendar(Date date) {
+		GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return cal;
+	}
+	
+//	@Test
+    public void testOne2OneUniEmbeddedId() {
+
+        log.info("*** testOne2OneUniEmbedded ***");
+
+        Date showDate = new GregorianCalendar(1975+new Random().nextInt(100), Calendar.JANUARY, 1).getTime();
+        Date showTime = new GregorianCalendar(0, 0, 0, 0, 0, 0).getTime();
+
+        ShowEvent show = new ShowEvent(showDate, showTime);
+        show.setName("Rocky Horror");
+
+        BoxOffice boxOffice = new BoxOffice(show);
+        boxOffice.setTicketsLeft(500);
+
+        em.persist(show);
+        em.persist(boxOffice); //provider auto propagates parent.cid to dependent.FK mapped to dependent.cid 
+
+        //flush commands to database, clear cache, and pull back new instance
+        em.flush();
+        em.clear();
+
+        BoxOffice boxOffice2 = em.find(BoxOffice.class, new ShowEventPK(boxOffice.getDate(), 
+                                    boxOffice.getTime()));
+
+        log.info("calling parent...");
+
+        assertEquals("unexpected name", boxOffice.getShow().getName(), boxOffice2.getShow().getName());
+        
+        Object[] cols = (Object[]) em.createNativeQuery(
+                "select show.date show_date, show.time show_time, " +
+                        "tickets.show_date ticket_date, tickets.show_time ticket_time, tickets.tickets " +
+                "from RELATIONEX_SHOWEVENT show " +
+                "join RELATIONEX_BOXOFFICE tickets on show.date = tickets.show_date and show.time = tickets.show_time " +
+                "where tickets.show_date = ?1 and tickets.show_time = ?2")
+                .setParameter(1, boxOffice.getShow().getDate(), TemporalType.DATE)
+                .setParameter(2, toCalendar(boxOffice.getShow().getTime()), TemporalType.TIME)
+                .getSingleResult();
+
+        log.info("row=" + Arrays.toString(cols));
+
+        assertEquals("unexpected show_date", boxOffice2.getShow().getDate(), (Date)cols[0]);
+
+        assertEquals("unexpected show_time", boxOffice2.getShow().getTime(), (Date)cols[1]);
+
+        assertEquals("unexpected ticket_date", boxOffice2.getDate(), (Date)cols[2]);
+
+        assertEquals("unexpected ticket_time", boxOffice2.getTime(), (Date)cols[3]);
+
+        assertEquals("unexpected ticketsLeft", boxOffice2.getTicketsLeft(), ((Number)cols[4]).intValue());
+        
+        em.remove(boxOffice2);
+        em.remove(boxOffice2.getShow());
+        em.flush();
+
+        assertNull("tickets not deleted", em.find(ShowEvent.class, new ShowEventPK(show.getDate(), show.getTime())));
+
+        assertNull("show not deleted", em.find(BoxOffice.class, new ShowEventPK(boxOffice.getDate(), boxOffice.getTime())));
+    }
+	
+    @Test
+    public void testOne2OneBiPKJ() {
+
+        log.info("*** testOne2OneBiPKJ() ***");
+
+        Applicant applicant = new Applicant();
+        applicant.setName("Jason Garret");
+
+        Application application = new Application(applicant);
+        application.setDesiredStartDate(new GregorianCalendar(2008, Calendar.JANUARY, 1).getTime());
+
+        em.persist(applicant);   //provider will generate a PK
+        em.persist(application); //provider will propogate parent.PK to dependent.FK/PK
+        
+        em.flush();
+        em.clear();
+
+        log.info("finding dependent...");
+
+        Application application2 = em.find(Application.class, application.getId());
+
+        log.info("found dependent...");
+
+        assertTrue("unexpected startDate", 
+                application.getDesiredStartDate().equals(application2.getDesiredStartDate()));
+
+        log.info("calling parent...");
+
+        assertEquals("unexpected name", application.getApplicant().getName(), 
+            application2.getApplicant().getName());
+        
+        em.flush();
+        em.clear();
+
+        log.info("finding parent...");
+
+        Applicant applicant2 = em.find(Applicant.class, applicant.getId());
+
+        log.info("found parent...");
+
+        assertEquals("unexpected name", applicant.getName(), applicant2.getName());
+
+        log.info("calling dependent...");
+
+        assertTrue("unexpected startDate", 
+                applicant.getApplication().getDesiredStartDate().equals(
+                applicant2.getApplication().getDesiredStartDate()));
+        
+		/*
+		 * em.remove(applicant2.getApplication()); em.remove(applicant2); em.flush();
+		 * 
+		 * assertNull("applicant not deleted", em.find(Applicant.class,
+		 * applicant2.getId()));
+		 * 
+		 * assertNull("application not deleted", em.find(Application.class,
+		 * applicant2.getApplication().getId()));
+		 */
+     }
 }
