@@ -1,9 +1,13 @@
 package myorg.relex;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,17 +22,25 @@ import org.slf4j.LoggerFactory;
 
 import myorg.relex.one2one.Applicant;
 import myorg.relex.one2one.Application;
-import myorg.relex.one2one.BoxOffice;
+import myorg.relex.one2one.Attendee;
 import myorg.relex.one2one.Auto;
+import myorg.relex.one2one.Auto2;
+import myorg.relex.one2one.BoxOffice;
 import myorg.relex.one2one.Coach;
 import myorg.relex.one2one.Driver;
+import myorg.relex.one2one.Driver2;
 import myorg.relex.one2one.Employee;
+import myorg.relex.one2one.License;
+import myorg.relex.one2one.LicenseApplication;
 import myorg.relex.one2one.Member;
+import myorg.relex.one2one.Passenger;
 import myorg.relex.one2one.Person;
 import myorg.relex.one2one.Player;
+import myorg.relex.one2one.Residence;
 import myorg.relex.one2one.ShowEvent;
 import myorg.relex.one2one.ShowEventPK;
 import myorg.relex.one2one.ShowTickets;
+import myorg.relex.one2one.Ticket;
 
 public class One2OneTest extends JPATestBase {
 
@@ -414,7 +426,7 @@ public class One2OneTest extends JPATestBase {
 		assertNull("application not deleted", em.find(Application.class, applicant2.getApplication().getId()));
 	}
 	
-	@Test
+	//@Test
     public void testOne2OneBiOwningOptional() {
 
         log.info("*** testOne2OneBiOwningOptional() ***");
@@ -477,5 +489,344 @@ public class One2OneTest extends JPATestBase {
         assertNull("driver not deleted", em.find(Driver.class, truck3.getDriver().getId()));
         assertNull("auto not deleted", em.find(Auto.class, auto.getId()));
         assertNull("truck not deleted", em.find(Auto.class, truck.getId()));
+    }
+	
+	//@Test
+    public void testOne2OneBiInverseOptional() {
+
+        log.info("*** testOne2OneBiInverseOptional() ***");
+
+        Auto2 auto = new Auto2();           //auto is owning/dependent side
+        auto.setType(Auto2.Type.CAR);
+
+        Driver2 driver = new Driver2(auto); //driver is inverse/parent side
+        driver.setName("Danica Patrick");
+
+        auto.setDriver(driver);           //owning side must be set
+
+        em.persist(driver);
+        em.persist(auto);
+        em.flush();
+        em.clear();
+
+        log.info("finding parent...");
+
+        Driver2 driver2 = em.find(Driver2.class, driver.getId());
+
+        log.info("found parent...");
+
+        assertEquals("unexpected name", driver.getName(), driver2.getName());
+
+        log.info("calling dependent...");
+
+        assertEquals("unexpected name", driver.getAuto().getType(), driver2.getAuto().getType());
+        
+        em.flush();
+        em.clear();
+
+        log.info("finding dependent...");
+
+        Auto2 auto2 = em.find(Auto2.class, auto.getId());
+
+        log.info("found dependent...");
+
+        assertEquals("unexpected type", auto.getType(), auto.getType());
+
+        log.info("calling parent...");
+
+        assertEquals("unexpected name", auto.getDriver().getName(), auto2.getDriver().getName());
+        
+        Auto2 truck = new Auto2();
+        truck.setType(Auto2.Type.TRUCK);
+
+        driver = em.find(Driver2.class, driver.getId()); //get the managed instance
+        driver.setAuto(truck);
+        
+        auto2.setDriver(null);  //must remove reference to former driver
+
+        truck.setDriver(driver);//prior to assigning to new driver for 1:1
+
+        em.persist(truck);
+        
+        em.flush();
+        em.clear();
+
+        Auto2 auto3 = em.find(Auto2.class, auto.getId());
+
+        Driver2 driver3 = em.find(Driver2.class, driver.getId());
+
+        Auto2 truck3 = em.find(Auto2.class, truck.getId());
+
+        assertNull("driver not removed from auto", auto3.getDriver());
+
+        assertEquals("driver not assigned to truck", truck.getId(), driver3.getAuto().getId());
+
+        assertEquals("truck not assigned to driver", driver.getId(), truck3.getDriver().getId());
+        
+        em.remove(truck3);
+        em.remove(auto3);
+        em.remove(truck3.getDriver());
+        em.flush();
+
+        assertNull("driver not deleted", em.find(Driver.class, truck3.getDriver().getId()));
+
+        assertNull("auto not deleted", em.find(Auto.class, auto.getId()));
+
+        assertNull("truck not deleted", em.find(Auto.class, truck.getId()));
+    }
+	
+    //@Test
+    public void testOne2OneCascadeFromOwner() {
+
+        log.info("*** testOne2OneCascadeFromOwner ***");
+
+        License license = new License();
+        license.setRenewal(new GregorianCalendar(2012,1,1).getTime());
+
+        LicenseApplication licapp = new LicenseApplication(license);
+        licapp.setUpdated(new Date());
+
+        em.persist(licapp);
+        em.flush();
+        
+        assertTrue("licapp was not managed???", em.contains(licapp));
+
+        assertTrue("license was not managed???", em.contains(license));
+
+        em.detach(licapp);
+
+        assertFalse("licapp still managed", em.contains(licapp));
+
+        assertFalse("license still managed", em.contains(license));
+
+        licapp = em.find(LicenseApplication.class, licapp.getId());
+        license = licapp.getLicense();
+        
+        Date newDate = new GregorianCalendar(2014, 1, 1).getTime();
+        Date newUpdate = new Date(licapp.getUpdated().getTime()+1);
+
+        assertEquals("unexpected update count", 1, 
+            em.createQuery("update License lic set lic.renewal=:renewal where lic.id=:id")
+            .setParameter("renewal", newDate, TemporalType.DATE)
+            .setParameter("id", license.getId())
+            .executeUpdate());
+
+        assertEquals("unexpected update count", 1, 
+                em.createQuery("update LicenseApplication licapp set licapp.updated=:updated where licapp.id=:id")
+                .setParameter("updated", newUpdate, TemporalType.TIMESTAMP)
+                .setParameter("id", licapp.getId())
+                .executeUpdate());
+
+        assertFalse("unexpected updated value prior to refresh", 
+                licapp.getUpdated().getTime() == newUpdate.getTime());
+
+        assertFalse("unexpected renewal value prior to refresh", 
+                license.getRenewal().getTime() == newDate.getTime());
+
+        log.info("database updated");
+
+        em.refresh(licapp);
+
+        log.info("entities refreshed");
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+
+        assertTrue(String.format("licapp not refreshed, exp=%s, act=%s", df.format(newUpdate), 
+            df.format(licapp.getUpdated())), licapp.getUpdated().getTime() == newUpdate.getTime());
+
+        assertTrue(String.format("license not refreshed, exp=%s, act=%s", df.format(newDate), 
+            df.format(license.getRenewal())), license.getRenewal().getTime() == newDate.getTime());
+        
+        em.detach(licapp);
+
+        newDate = new GregorianCalendar(2016, 1, 1).getTime();
+        newUpdate = new Date(licapp.getUpdated().getTime()+1);
+
+        assertFalse("licapp still managed", em.contains(licapp));
+
+        assertFalse("license still managed", em.contains(licapp.getLicense()));
+
+        licapp.setUpdated(newUpdate);
+        licapp.getLicense().setRenewal(newDate);
+
+        log.info("merging changes to detached entities");
+
+        licapp=em.merge(licapp);
+
+        em.flush();
+
+        log.info("merging complete");
+
+        assertTrue("merged licapp not managed", em.contains(licapp));
+
+        assertTrue("merged licapp.license not managed", em.contains(licapp.getLicense()));
+
+        assertTrue(String.format("licapp not merged, exp=%s, act=%s", df.format(newUpdate), 
+            df.format(licapp.getUpdated())), licapp.getUpdated().getTime() == newUpdate.getTime());
+
+        assertTrue(String.format("license not merged, exp=%s, act=%s", df.format(newDate), 
+            df.format(license.getRenewal())), licapp.getLicense().getRenewal().getTime() == newDate.getTime());
+        
+        em.remove(licapp);
+        em.flush();
+        assertNull("licapp not deleted", em.find(LicenseApplication.class, licapp.getId()));
+        assertNull("licapp.license not deleted", em.find(License.class, licapp.getLicense().getId()));
+    }
+    
+    //@Test
+    public void testOne2OneCascadeFromInverse() {
+
+        log.info("*** testOne2OneCascadeFromInverse ***");
+
+        Ticket ticket = new Ticket();
+        ticket.setDate(new GregorianCalendar(2013, Calendar.MARCH, 16).getTime());
+
+        Passenger passenger = new Passenger(ticket, "Fred");	//set inverse side
+        ticket.setPassenger(passenger);                			//set the owning side
+
+        em.persist(ticket);                            			//persist from inverse side
+        em.flush();
+
+        assertTrue("ticket not managed", em.contains(ticket));
+
+        assertTrue("passenger not managed", em.contains(passenger));
+        
+        log.debug("detach both instances from the persistence context");
+
+        em.detach(ticket);
+
+        assertFalse("ticket managed", em.contains(ticket));
+
+        assertFalse("passenger managed", em.contains(passenger));
+        
+        log.debug("perform a bulk update to both objects");
+
+        ticket = em.find(Ticket.class, ticket.getId());
+
+        Date newDate=new GregorianCalendar(2013, Calendar.APRIL, 1).getTime();
+        String newName = "Frederick";
+
+        em.createQuery("update Ticket t set t.date=:date")
+            .setParameter("date", newDate,TemporalType.DATE)
+            .executeUpdate();
+
+        em.createQuery("update Passenger p set p.name=:name where p.name='Fred'")
+            .setParameter("name", newName)
+            .executeUpdate();
+
+        assertFalse("unexpected date", newDate.equals(ticket.getDate()));
+
+        assertFalse("unexpected name", newName.equals(ticket.getPassenger().getName()));
+
+        em.refresh(ticket);
+
+        assertTrue("date not refreshed", newDate.equals(ticket.getDate()));
+
+        assertTrue("name not refreshed", newName.equals(ticket.getPassenger().getName()));
+        
+        log.debug("merging changes from inverse side");
+
+        Ticket ticket2 = new Ticket(ticket.getId());
+        ticket2.setDate(new GregorianCalendar(2014, Calendar.APRIL, 1).getTime());
+
+        Passenger passenger2 = new Passenger(passenger.getId());
+        passenger2.setName("Rick");
+
+        ticket2.setPassenger(passenger2);
+        passenger2.setTicket(ticket2);
+
+        assertFalse("unexpected date", ticket2.getDate().equals(ticket.getDate()));
+
+        assertFalse("unexpected name", ticket2.getPassenger().getName().equals(ticket.getPassenger().getName()));
+
+        ticket=em.merge(ticket2);
+
+        em.flush();
+
+        assertTrue("date not merged", ticket2.getDate().equals(ticket.getDate()));
+
+        assertTrue("name not merged", ticket2.getPassenger().getName().equals(ticket.getPassenger().getName()));
+        
+        log.debug("delete the entities from the inverse side");
+
+        assertNotNull("ticket not found", em.find(Ticket.class, ticket.getId()));
+
+        assertNotNull("passenger not found", em.find(Passenger.class, ticket.getPassenger().getId()));
+
+        em.remove(ticket);
+
+        em.flush();
+
+        assertNull("ticket not removed", em.find(Ticket.class, ticket.getId()));
+
+        assertNull("passenger not removed", em.find(Passenger.class, ticket.getPassenger().getId()));
+    }
+    
+    //@Test
+    public void testOrphanRemoval() {
+
+        log.info("*** testOrphanRemoval ***");
+
+        log.debug("start by verifying the state of the database");
+
+        int startCount = em.createQuery("select count(r) from Residence r", Number.class)
+                              .getSingleResult().intValue();
+
+        log.debug("create a new attendee and residence");
+
+        Attendee attendee = new Attendee();
+        attendee.setName("jones");
+        attendee.setResidence(new Residence("Columbia", "MD"));
+
+        em.persist(attendee);
+        em.flush();
+        
+        log.debug("verify we have a new residence in the database");
+
+        assertEquals("unexpected number of residences", startCount+1,
+                em.createQuery("select count(r) from Residence r", Number.class)
+                  .getSingleResult().intValue());
+
+        log.debug("verify we can find our new instance");
+
+        int originalId=attendee.getResidence().getId();
+
+        assertNotNull("could not find residence", em.find(Residence.class, originalId));
+        
+        log.debug("have attendee change residence");
+
+        //ISSUE: https://hibernate.atlassian.net/browse/HHH-6484
+        //MORE: https://hibernate.atlassian.net/browse/HHH-5559
+
+        attendee.setResidence(null);
+        em.flush();
+
+        attendee.setResidence(new Residence("Baltimore", "MD"));
+
+        em.flush();
+
+        log.debug("verify we have the same number of residences");
+
+        assertEquals("unexpected number of residences", startCount+1,
+                em.createQuery("select count(r) from Residence r", Number.class)
+                    .getSingleResult().intValue());
+
+        log.debug("verify the new instance replaced the original instance");
+
+        assertNull("found original residence", em.find(Residence.class, originalId));
+
+        assertNotNull("could not find new residence", em.find(Residence.class, attendee.getResidence().getId()));
+        
+        log.debug("remove reference to the current residence");
+
+        attendee.setResidence(null);
+
+        //em.flush(); -- note flush is done during follow-on query
+
+        log.debug("verify all residences created during this test have been deleted");
+
+        assertEquals("unexpected number of residences", startCount,
+                em.createQuery("select count(r) from Residence r", Number.class)
+                    .getSingleResult().intValue());
     }
 }

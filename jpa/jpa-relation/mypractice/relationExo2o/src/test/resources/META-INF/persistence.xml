@@ -13,7 +13,8 @@
          work correctly -->
     <persistence-unit name="relationEx-test">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-
+        
+        <!-- 
         <class>myorg.relex.Auto</class>
         <class>myorg.relex.one2one.Person</class>
         <class>myorg.relex.one2one.Player</class>
@@ -27,6 +28,17 @@
         <class>myorg.relex.one2one.Application</class>
         <class>myorg.relex.one2one.Auto</class>
         <class>myorg.relex.one2one.Driver</class>
+        <class>myorg.relex.one2one.Auto2</class>
+        <class>myorg.relex.one2one.Driver2</class>
+        <class>myorg.relex.one2one.License</class>
+        <class>myorg.relex.one2one.LicenseApplication</class>
+        <class>myorg.relex.one2one.Ticket</class>
+        <class>myorg.relex.one2one.Passenger</class>
+        <class>myorg.relex.one2one.Residence</class>
+        <class>myorg.relex.one2one.Attendee</class>
+         -->
+        <class>myorg.relex.one2many.Rider</class>
+        <class>myorg.relex.one2many.Bus</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>
