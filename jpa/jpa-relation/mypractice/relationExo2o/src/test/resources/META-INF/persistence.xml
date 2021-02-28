@@ -36,9 +36,16 @@
         <class>myorg.relex.one2one.Passenger</class>
         <class>myorg.relex.one2one.Residence</class>
         <class>myorg.relex.one2one.Attendee</class>
-         -->
         <class>myorg.relex.one2many.Rider</class>
         <class>myorg.relex.one2many.Bus</class>
+        <class>myorg.relex.one2many.Stop</class>
+        <class>myorg.relex.one2many.Route</class>
+        <class>myorg.relex.one2many.Suspect</class>
+        <class>myorg.relex.one2many.Basket</class>
+        <class>myorg.relex.one2many.Produce</class>
+        <class>myorg.relex.one2many.Todo</class>
+        <class>myorg.relex.one2many.TodoList</class>
+        -->
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>
