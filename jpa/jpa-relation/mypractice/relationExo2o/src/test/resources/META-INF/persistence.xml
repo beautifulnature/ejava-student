@@ -45,7 +45,18 @@
         <class>myorg.relex.one2many.Produce</class>
         <class>myorg.relex.one2many.Todo</class>
         <class>myorg.relex.one2many.TodoList</class>
+        <class>myorg.relex.collection.Fleet</class>
+        <class>myorg.relex.collection.ShipByDefault</class>
+        <class>myorg.relex.collection.ShipByPK</class>
+        <class>myorg.relex.collection.ShipBySwitch</class>
+        <class>myorg.relex.collection.ShipByBusinessId</class>
+        <class>myorg.relex.collection.Path</class>
+        <class>myorg.relex.collection.Segment</class>
+        <class>myorg.relex.collection.Position</class>
+        <class>myorg.relex.collection.Lineup</class>
         -->
+        <class>myorg.relex.many2one.State</class>
+        <class>myorg.relex.many2one.StateResident</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>

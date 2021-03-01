@@ -85,7 +85,7 @@ public abstract class Ship {
 				.append(".equals(id=")
 				.append(obj == null ? null : ((Ship) obj).id + ",oid=" + ((Ship) obj).oid)
 				.append(")=")
-				.append(equals));
+				.append(equals).toString());
 		return equals;
 	}
 
