@@ -54,9 +54,11 @@
         <class>myorg.relex.collection.Segment</class>
         <class>myorg.relex.collection.Position</class>
         <class>myorg.relex.collection.Lineup</class>
-        -->
         <class>myorg.relex.many2one.State</class>
         <class>myorg.relex.many2one.StateResident</class>
+        -->
+        <class>myorg.relex.many2one.House</class>
+        <class>myorg.relex.many2one.Occupant</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>
