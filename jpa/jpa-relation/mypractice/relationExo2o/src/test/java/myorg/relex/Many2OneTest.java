@@ -1,7 +1,10 @@
 package myorg.relex;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -10,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import myorg.relex.many2one.House;
 import myorg.relex.many2one.HousePK;
+import myorg.relex.many2one.Item;
+import myorg.relex.many2one.ItemPK;
+import myorg.relex.many2one.ItemType;
 import myorg.relex.many2one.Occupant;
 import myorg.relex.many2one.State;
 import myorg.relex.many2one.StateResident;
@@ -22,109 +28,194 @@ public class Many2OneTest extends JPATestBase {
 	public void testSample() {
 		log.info("testSample");
 	}
-	
+
 //	@Test
-    public void testManyToOneUniFK() {
+	public void testManyToOneUniFK() {
 
-        log.info("*** testManyToOneUniFK ***");
+		log.info("*** testManyToOneUniFK ***");
 
-        State state = new State("MD", "Maryland");
+		State state = new State("MD", "Maryland");
 
-        StateResident res = new StateResident(state);
-        res.setName("joe");
-        
-        log.debug("persisting parent");
-        
-        em.persist(state);
+		StateResident res = new StateResident(state);
+		res.setName("joe");
 
-        log.debug("persisting child");
+		log.debug("persisting parent");
 
-        em.persist(res);
+		em.persist(state);
 
-        em.flush();
-        
-        log.debug("getting new instances");
+		log.debug("persisting child");
 
-        em.clear();
+		em.persist(res);
 
-        StateResident res2 = em.find(StateResident.class, res.getId());
+		em.flush();
 
-        log.debug("checking child");
+		log.debug("getting new instances");
 
-        assertEquals("unexpected child data", res.getName(), res2.getName());
+		em.clear();
 
-        log.debug("checking parent");
+		StateResident res2 = em.find(StateResident.class, res.getId());
 
-        assertEquals("unexpected parent data", state.getName(), res2.getState().getName());
-        
-        log.debug("add more residents");
-        
-        StateResident resB = new StateResident(res2.getState());
-        
-        em.persist(resB);
-        
-        em.flush();
-        
-        log.debug("getting new instances of residences");
-        em.clear();
-        
-        List<StateResident> residents = em.createQuery(
-                    "select r from StateResident r " +
-                    "where r.state.id=:stateId", 
-                    StateResident.class)
-                .setParameter("stateId", res.getState().getId())
-                .getResultList();
-        
-        assertEquals("unexpected number of residents", 2, residents.size());
-        
-        log.debug("changing state/data of common parent");
+		log.debug("checking child");
 
-        residents.get(0).getState().setName("Home State");
+		assertEquals("unexpected child data", res.getName(), res2.getName());
 
-        assertEquals("unexpected difference in parent data", 
-                residents.get(0).getState().getName(),
-                residents.get(1).getState().getName());
-    }
-    
-    @Test
-    public void testManyToOneUniCompoundFK() {
+		log.debug("checking parent");
 
-        log.info("*** testManyToOneUniCompoundFK ***");
+		assertEquals("unexpected parent data", state.getName(), res2.getState().getName());
 
-        House house = new House(new HousePK(1600,"PA Ave"),"White House");
+		log.debug("add more residents");
 
-        Occupant occupant = new Occupant("bo", house);
+		StateResident resB = new StateResident(res2.getState());
 
-        log.debug("persisting parent");
+		em.persist(resB);
 
-        em.persist(house);
+		em.flush();
 
-        log.debug("persisting child");
+		log.debug("getting new instances of residences");
+		em.clear();
 
-        em.persist(occupant);
+		List<StateResident> residents = em
+				.createQuery("select r from StateResident r " + "where r.state.id=:stateId", StateResident.class)
+				.setParameter("stateId", res.getState().getId()).getResultList();
 
-        em.flush();
-        
-        log.debug("getting new instances");
+		assertEquals("unexpected number of residents", 2, residents.size());
 
-        em.clear();
+		log.debug("changing state/data of common parent");
 
-        Occupant occupant2 = em.find(Occupant.class, occupant.getId());
+		residents.get(0).getState().setName("Home State");
 
-        log.debug("checking child");
+		assertEquals("unexpected difference in parent data", residents.get(0).getState().getName(),
+				residents.get(1).getState().getName());
+	}
 
-        assertEquals("unexpected child data", occupant.getName(), occupant2.getName());
+//    @Test
+	public void testManyToOneUniCompoundFK() {
 
-        log.debug("checking parent");
+		log.info("*** testManyToOneUniCompoundFK ***");
 
-        assertEquals("unexpected parent data", house.getName(), occupant2.getResidence().getName());
-        
-        log.debug("add more child entities");
+		House house = new House(new HousePK(1600, "PA Ave"), "White House");
 
-        Occupant occupantB = new Occupant("miss beazily", occupant2.getResidence());
+		Occupant occupant = new Occupant("bo", house);
 
-        em.persist(occupantB);
+		log.debug("persisting parent");
 
-        em.flush();
-    }
+		em.persist(house);
+
+		log.debug("persisting child");
+
+		em.persist(occupant);
+
+		em.flush();
+
+		log.debug("getting new instances");
+
+		em.clear();
+
+		Occupant occupant2 = em.find(Occupant.class, occupant.getId());
+
+		log.debug("checking child");
+
+		assertEquals("unexpected child data", occupant.getName(), occupant2.getName());
+
+		log.debug("checking parent");
+
+		assertEquals("unexpected parent data", house.getName(), occupant2.getResidence().getName());
+
+		log.debug("add more child entities");
+
+		Occupant occupantB = new Occupant("miss beazily", occupant2.getResidence());
+
+		em.persist(occupantB);
+
+		em.flush();
+
+		log.debug("getting new instances of children");
+
+		em.clear();
+
+		List<Occupant> occupants = em
+				.createQuery("select o from Occupant o " + "where o.residence.id=:houseId", Occupant.class)
+				.setParameter("houseId", occupant.getResidence().getId()).getResultList();
+
+		assertEquals("unexpected number of children", 2, occupants.size());
+	}
+
+//	@Test
+	public void testManyToOneUniMapsIdEmbedded() {
+
+		log.info("*** testManyToOneUniMapsIdEmbedded ***");
+
+		ItemType type = new ItemType("snowblower");
+
+		log.debug("persisting parent:" + type);
+
+		em.persist(type);
+
+		em.flush();
+
+		log.debug("persisted parent:" + type);
+
+		Item item = new Item(type, 1);
+
+		item.setCreated(new Date());
+
+		log.debug("persisting child:" + item);
+
+		em.persist(item);
+
+		em.flush();
+
+		log.debug("persisted child:" + item);
+
+		// check PK assigned
+		ItemPK pk = new ItemPK().setTypeId(type.getId()).setNumber(1);
+
+		assertTrue(String.format("expected PK %s not match actual %s", pk, item.getId()), pk.equals(item.getId()));
+
+		log.debug("getting new instances");
+
+		em.clear();
+
+		Item item2 = em.find(Item.class, pk);
+
+		log.debug("checking child");
+
+		assertNotNull("child not found by primary key:" + pk, item2);
+
+		assertTrue("unexpected child data", item.getCreated().equals(item2.getCreated()));
+
+		log.debug("checking parent");
+
+		assertEquals("unexpected parent data", type.getName(), item2.getItemType().getName());
+
+		Item itemB = new Item(item2.getItemType(), 2);
+
+		log.debug("add more child entities:" + itemB);
+
+		itemB.setCreated(new Date());
+
+		em.persist(itemB);
+
+		em.flush();
+
+		log.debug("new child entities added:" + itemB);
+		
+		log.debug("getting new instances of children");
+		
+		em.clear();
+		
+		List<Item> items = em.createQuery(
+				"select i from Item i " +
+						"where i.itemType.id=:typeId", Item.class)
+				.setParameter("typeId", item.getItemType().getId())
+				.getResultList();
+		
+		assertEquals("unexpected number of children", 2, items.size());
+		
+		List<Item> itms = em.createQuery(
+				"select i from Item i "
+						+ "where i.id.typeId=:typeId", Item.class)
+				.setParameter("typeId", item.getItemType().getId())
+				.getResultList();
+	}
 }

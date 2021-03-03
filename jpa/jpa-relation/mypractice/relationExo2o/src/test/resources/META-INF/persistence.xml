@@ -56,9 +56,15 @@
         <class>myorg.relex.collection.Lineup</class>
         <class>myorg.relex.many2one.State</class>
         <class>myorg.relex.many2one.StateResident</class>
-        -->
         <class>myorg.relex.many2one.House</class>
         <class>myorg.relex.many2one.Occupant</class>
+        <class>myorg.relex.many2one.Item</class>
+        <class>myorg.relex.many2one.ItemType</class>
+        <class>myorg.relex.one2manybi.Borrower</class>
+        <class>myorg.relex.one2manybi.Loan</class>
+        -->
+        <class>myorg.relex.one2manybi.Purchase</class>
+        <class>myorg.relex.one2manybi.SaleItem</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>
