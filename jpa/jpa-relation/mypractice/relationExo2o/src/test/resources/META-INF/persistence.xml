@@ -62,9 +62,14 @@
         <class>myorg.relex.many2one.ItemType</class>
         <class>myorg.relex.one2manybi.Borrower</class>
         <class>myorg.relex.one2manybi.Loan</class>
-        -->
         <class>myorg.relex.one2manybi.Purchase</class>
         <class>myorg.relex.one2manybi.SaleItem</class>
+        <class>myorg.relex.one2manybi.Car</class>
+        <class>myorg.relex.one2manybi.Tire</class>
+        <class>myorg.relex.many2many.Group</class>
+        <class>myorg.relex.many2many.Individual</class>
+        -->
+        <class>myorg.relex.many2many.Node</class>
         <properties>
            <!-- defined in src/test/resources/hibernate.properties -->
         </properties>

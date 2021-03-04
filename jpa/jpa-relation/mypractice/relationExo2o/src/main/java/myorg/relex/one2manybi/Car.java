@@ -28,8 +28,10 @@ public class Car {
 	@GeneratedValue
 	private int id;
 
-	@OneToMany(mappedBy = "car", cascade = { CascadeType.PERSIST,
-			CascadeType.DETACH }, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "car"
+			, cascade = { CascadeType.PERSIST, CascadeType.DETACH }
+			, orphanRemoval = true
+			, fetch = FetchType.LAZY)
 	private Set<Tire> tires;
 
 	@Column(length = 16)
