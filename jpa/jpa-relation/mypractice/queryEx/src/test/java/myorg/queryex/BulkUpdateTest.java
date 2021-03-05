@@ -36,7 +36,7 @@ public class BulkUpdateTest extends QueryBase {
 	 * This test will demonstrate the ability to use JPAQL to perform a bulk 
 	 * update directly within the database.
 	 */
-	@Test @Ignore
+//	@Test @Ignore
 	public void testUpdate() {
 		log.info("*** testUpdate ***");
 	}
@@ -45,7 +45,7 @@ public class BulkUpdateTest extends QueryBase {
 	 * This test will demonstrate using a native SQL command within a JPA
 	 * bulk update.
 	 */
-	@Test @Ignore
+//	@Test @Ignore
 	public void testSQLUpdate() {
 		log.info("*** testSQLUpdate ***");
 	}

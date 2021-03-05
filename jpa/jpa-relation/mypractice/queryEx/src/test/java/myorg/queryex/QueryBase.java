@@ -36,48 +36,53 @@ public class QueryBase {
 
     @After
     public void tearDown() throws Exception {
-        log.debug("tearDown() started, em={}", em);
-        if (em!=null) {
+    	if (em==null || !em.isOpen()) { return; }
+        try {
             EntityTransaction tx = em.getTransaction();
-            if (tx.isActive()) {
-                if (tx.getRollbackOnly() == true) { tx.rollback(); }
-                else                              { tx.commit(); }
-            } else {
+            log.debug("tearDown() started, em=" + em);
+            if (!tx.isActive()) {
                 tx.begin();
-                tx.commit();
+                tx.commit();            
+            } else if (tx.getRollbackOnly()) {
+                tx.rollback();                        	
+            } else {
+            	tx.commit();
             }
-            em.close();
-            em=null;
+            em.close(); em=null;
+            log.debug("tearDown() complete, em=" + em);
         }
-        log.debug("tearDown() complete, em={}", em);
+        catch (Exception ex) {
+            log.error("tearDown failed", ex);
+            throw ex;
+        }
      }
     
     @AfterClass
     public static void tearDownClass() {
         log.debug("closing entity manager factory");
-        if (emf!=null) { emf.close(); }
+        if (emf!=null) { emf.close(); emf=null; }
     }
     
     public static void cleanup(EntityManager em) {
-        	em.getTransaction().begin();
-        	for (Movie movie : em.createQuery("from Movie", Movie.class).getResultList()) {
-        		em.remove(movie);
-        	}
-        	for (Actor actor: em.createQuery("from Actor", Actor.class).getResultList()) {
-        		em.remove(actor);
-        	}
-        	for (Director director: em.createQuery("from Director", Director.class).getResultList()) {
-        		em.remove(director);
-        	}
-        	for (Person person: em.createQuery("from Person", Person.class).getResultList()) {
-        		em.remove(person);
-        	}
-        	em.getTransaction().commit();
+    	em.getTransaction().begin();
+    	for (Movie movie : em.createQuery("from Movie", Movie.class).getResultList()) {
+    		em.remove(movie);
+    	}
+    	for (Actor actor: em.createQuery("from Actor", Actor.class).getResultList()) {
+    		em.remove(actor);
+    	}
+    	for (Director director: em.createQuery("from Director", Director.class).getResultList()) {
+    		em.remove(director);
+    	}
+    	for (Person person: em.createQuery("from Person", Person.class).getResultList()) {
+    		em.remove(person);
+    	}
+    	em.getTransaction().commit();
     }
     
     public static void populate(EntityManager em) {
-        	em.getTransaction().begin();
-        	new MovieFactory().setEntityManager(em).populate();
-        	em.getTransaction().commit();
+    	em.getTransaction().begin();
+    	new MovieFactory().setEntityManager(em).populate();
+    	em.getTransaction().commit();
     }
 }

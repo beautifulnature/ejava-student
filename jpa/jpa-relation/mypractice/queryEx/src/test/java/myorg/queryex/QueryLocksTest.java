@@ -140,27 +140,27 @@ public class QueryLocksTest extends QueryBase {
 		return actors.size();
     }
     
-    @Test @Ignore
+//    @Test @Ignore
     public void testSimple() {
     	log.info("*** testPersistentSimple ***");
     }
 
-    @Test @Ignore
+//    @Test @Ignore
     public void testNONE() {
     	log.info("*** testNONE ***");
     }
 
-    @Test @Ignore
+//    @Test @Ignore
     public void testPessimisticWrite1() {
     	log.info("*** testPersistentWrite1 ***");
     }
 
-    @Test @Ignore
+//    @Test @Ignore
     public void testPessimisticWrite() {
     	log.info("*** testPersistentWrite ***");
     }
 
-    @Test @Ignore
+//    @Test @Ignore
     public void testPessimisticForceIncrement() {
     	log.info("*** testPersistentForceIncrement ***");
     }

@@ -22,7 +22,7 @@ public class SQLQueryTest extends QueryBase {
      * This test method demonstrates building and executing a SQL query using 
      * the entity manager.
      */
-    @Test @Ignore
+//    @Test @Ignore
     public void testSQLQuery() {
     	log.info("*** testSQLQuery ***");    	
     }
@@ -35,7 +35,7 @@ public class SQLQueryTest extends QueryBase {
      * and can simply specify the entity and have the mappings taken from the 
      * entity class' JPA annotations.  
      */
-    @Test @Ignore
+//    @Test @Ignore
     public void testSQLResultMapping() {
     	log.info("*** testSQLResultMapping ***");    	
     }
@@ -46,7 +46,7 @@ public class SQLQueryTest extends QueryBase {
      * are being returned here. This will cause some ambiguity with two of the 
      * entities and require some refinement in the next two test methods.
      */
-    @Test @Ignore
+//    @Test @Ignore
     public void testSQLMultiResultMapping() {
     	log.info("*** testSQLMultiResultMapping ***");    	
     }
@@ -57,7 +57,7 @@ public class SQLQueryTest extends QueryBase {
      * Using this explicit query makes it easier for us to spot the ambiguity 
      * between MOVIE.ID and PERSON.ID. 
      */
-    @Test @Ignore
+//    @Test @Ignore
     public void testSQLMultiResultMapping1() {
     	log.info("*** testSQLMultiResultMapping ***");    	
     }
@@ -68,7 +68,7 @@ public class SQLQueryTest extends QueryBase {
      * the two tables. This alias is registered in the field mapping of the SqlResultMapping
      * for the particular @EntityResult.
      */
-    @Test @Ignore
+//    @Test @Ignore
     public void testSQLMultiResultMapping2() {
     	log.info("*** testSQLMultiResultMapping ***");    	
    }

@@ -14,8 +14,9 @@ import javax.persistence.*;
 @NamedQueries({ 
 	@NamedQuery(name="Movie.findByTitle", query=
 		"select m from Movie m " +
-		"where lower(m.title) like concat(concat('%',lower(:title)),'%')")
+		"where lower(m.title) like :title")
 })
+//		"where lower(m.title) like concat(concat('%',lower(:title)),'%')")
 @SqlResultSetMappings({
 	@SqlResultSetMapping(name="Movie.movieMapping", entities={
 			@EntityResult(entityClass=Movie.class),
@@ -167,8 +168,8 @@ public class Movie implements Comparable<Movie>{
 		}
 		
 		if (director==null) {
-			if (rhs.director != null) { return false; }
-		} else if (!director.equals(rhs.director)) {
+			if (rhs.getDirector() != null) { return false; }
+		} else if (!director.equals(rhs.getDirector())) {
 			return false;
 		}
 		
