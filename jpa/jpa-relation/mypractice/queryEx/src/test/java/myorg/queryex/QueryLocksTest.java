@@ -114,7 +114,8 @@ public class QueryLocksTest extends QueryBase {
     	//start each of the threads
     	List<Writer> working = new ArrayList<Writer>();
     	for (Writer writer : writers) {
-    		working.add(writer); writer.start();
+    		working.add(writer);
+    		writer.start();
     	}
 
     	//run until all writers complete
@@ -140,7 +141,7 @@ public class QueryLocksTest extends QueryBase {
 		return actors.size();
     }
     
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testSimple() {
     	log.info("*** testPersistentSimple ***");
     }
