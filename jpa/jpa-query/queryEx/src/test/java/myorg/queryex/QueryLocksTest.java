@@ -154,13 +154,13 @@ public class QueryLocksTest extends QueryBase {
 		return actors.size();
     }
     
-    @Test
+    //@Test
     public void testSimple() {
     	log.info("*** testPersistentSimple ***");
         assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.NONE, 1));
     }
 
-    @Test
+    //@Test
     public void testNONE() {
     	log.info("*** testNONE ***");
         int count=testUpsert(LockModeType.NONE, 5);
@@ -173,13 +173,13 @@ public class QueryLocksTest extends QueryBase {
         assertTrue("unexpected number of actors", count > 1);
     }
 
-    @Test
+    //@Test
     public void testPessimisticWrite1() {
     	log.info("*** testPersistentWrite1 ***");
         assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.PESSIMISTIC_WRITE, 1));
     }
 
-    @Test @org.junit.Ignore //TODO: figure out why this does not work with server instance
+    @Test //@org.junit.Ignore //TODO: figure out why this does not work with server instance
     public void testPessimisticWrite() {
     	log.info("*** testPersistentWrite ***");
         assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.PESSIMISTIC_WRITE, 5));
