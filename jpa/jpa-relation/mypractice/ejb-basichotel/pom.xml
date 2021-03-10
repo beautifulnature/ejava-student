@@ -1,48 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>myorg.basicejb</groupId>
     <artifactId>basicejbEx</artifactId>
     <packaging>pom</packaging>
-
     <name>Basic EJB Exercise</name>
-
-    <version>1.0-SNAPSHOT</version>
-
+    <version>5.1.0-SNAPSHOT</version>
     <description>
-        This project is the root project for the example Java EE Application.
+        This project is the root project for the example Java EE
+        Application.
     </description>
 
     <modules>
         <module>basicejb-ejb</module>
         <module>basicejb-ear</module>
+        <module>basicejb-test</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.target.version>11</java.target.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
-        <maven-ejb-plugin.version>3.0.1</maven-ejb-plugin.version>
-        <javax.ejb-api.version>3.2.2</javax.ejb-api.version>
+        <ejava.version>5.1.0-SNAPSHOT</ejava.version>
         <annotation-api.version>1.3.2</annotation-api.version>
+        <javax.ejb-api.version>3.2.2</javax.ejb-api.version>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        
-        <ejava.version>5.1.0-SNAPSHOT</ejava.version>
+        <wildfly-controller-client.version>8.2.1.Final</wildfly-controller-client.version>
+
+        <cargo-maven2-plugin.version>1.4.15</cargo-maven2-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
+        <maven-ejb-plugin.version>3.0.1</maven-ejb-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0-M3</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+        <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+
+        <cargo.containerId>wildfly9x</cargo.containerId>
+        <jboss.host>localhost</jboss.host>
+        <jboss.http.port>8180</jboss.http.port>
+        <jboss.mgmt.host>${jboss.host}</jboss.mgmt.host>
+        <jboss.mgmt.port>10090</jboss.mgmt.port>
+
+        <java.naming.factory.initial>org.wildfly.naming.client.WildFlyInitialContextFactory</java.naming.factory.initial>
+        <java.naming.provider.url>http-remoting://${jboss.host}:${jboss.http.port}</java.naming.provider.url>
+        <java.naming.factory.url.pkgs />
+        <jboss.mgmt.user>admin</jboss.mgmt.user>
+        <jboss.mgmt.password>password1!</jboss.mgmt.password>
+        <jndi.user>known</jndi.user>
+        <jndi.password>password1!</jndi.password>
+
+        <!-- not part of exercise - for course deploy -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     </properties>
 
     <repositories>
-    	<repository>
+        <repository>
             <id>webdev-snapshot</id>
             <name>ejava webdev snapshot repository</name>
-            <url>http://webdev.jhuep.com/~jcs/maven2-snapshot</url>
+            <url>https://webdev.jhuep.com/~jcs/maven2-snapshot</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -72,7 +91,7 @@
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>${annotation-api.version}</version>
-            </dependency> 
+            </dependency>        
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -87,26 +106,31 @@
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
-            </dependency>
+            </dependency>    
             <dependency>
-            	<groupId>info.ejava.examples.common</groupId>
-            	<artifactId>jboss-rmi-client</artifactId>
-            	<version>${ejava.version}</version>
-            	<type>pom</type>
-            </dependency>
+                <groupId>info.ejava.examples.common</groupId>
+                <artifactId>jboss-rmi-client</artifactId>
+                <version>${ejava.version}</version>
+                <type>pom</type>
+            </dependency>    
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
+    	<pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <release>${java.target.version}</release>
-                    </configuration>
+                            <release>${java.target.version}</release>
+                    </configuration>	                
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -121,10 +145,112 @@
                         </archive>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>${maven-war-plugin.version}</version>
+                    <configuration>
+                       <failOnMissingWebXml>false</failOnMissingWebXml>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <version>${maven-ear-plugin.version}</version>
+                    <configuration>
+                       <version>7</version>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <argLine>${surefire.argLine}</argLine>
+                    </configuration>
+                    <executions>
+                        <execution> 
+                           <goals>
+                               <goal>integration-test</goal>
+                               <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven2-plugin</artifactId>
+                    <version>${cargo-maven2-plugin.version}</version>
+                    <configuration>
+                        <container>
+                            <containerId>${cargo.containerId}</containerId>
+                            <type>remote</type>
+                            <log>target/server.log</log>
+                            <output>target/output.log</output>
+                        </container>
+                        <configuration>
+                            <type>runtime</type>
+                            <properties>
+                                <cargo.hostname>${jboss.mgmt.host}</cargo.hostname>
+                                <cargo.jboss.management.port>${jboss.mgmt.port}</cargo.jboss.management.port>
+								<cargo.jboss.management-http.port>${jboss.mgmt.port}</cargo.jboss.management-http.port>
+                                <cargo.remote.username>${jboss.mgmt.user}</cargo.remote.username>
+                                <cargo.remote.password>${jboss.mgmt.password}</cargo.remote.password>
+                            </properties>
+                        </configuration>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.wildfly</groupId>
+                            <artifactId>wildfly-controller-client</artifactId>
+                            <version>${wildfly-controller-client.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                       <execution>
+                           <id>cargo-prep</id> 
+                               <phase>pre-integration-test</phase>
+                           <goals>
+                                <goal>redeploy</goal>
+                           </goals>
+                       </execution>
+                        <execution>
+                            <id>cargo-post</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>undeploy</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
-        </pluginManagement>
+    	</pluginManagement>
+
+        <plugins>
+            <!-- this is not configured to work with the site plugin - inject this into all child modules -->
+            <plugin> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven-site-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                    <skipDeploy>true</skipDeploy>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
+        <profile> <!-- tells surefire/failsafe to run JUnit tests with remote debug -->
+            <id>debugger</id>
+            <activation>
+                <property>
+                    <name>debugger</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine>-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -Xnoagent -Djava.compiler=NONE</surefire.argLine>
+            </properties>                                  
+        </profile>        
     </profiles>
 </project>

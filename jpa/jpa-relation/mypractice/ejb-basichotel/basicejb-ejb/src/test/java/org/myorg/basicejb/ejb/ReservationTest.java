@@ -6,16 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReservationTest {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ReservationTest.class);
-	private ReservationRemote reservatist;
-	
-	@Before
+    private static final Logger logger = LoggerFactory.getLogger(ReservationTest.class);
+    
+    ReservationRemote reservatist;
+    
+    @Before
     public void setUp() {
         reservatist=new ReservationEJB();
     }
-	
-	@Test
+    
+    @Test
     public void testPing() {
         logger.info("*** testPing ***");
         reservatist.ping();
