@@ -87,25 +87,25 @@
 
         <plugins>
             <!-- a mistaken step to attempt to correct an IT test setup problem 
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
+                        <!--
                         <jndi.name.reservation>ejb:basicejb-ear/basicejb-ejb/ReservationEJB!org.myorg.basicejb.ejb.ReservationRemote</jndi.name.reservation>
+                        -->
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-                 -->
             <!-- adds IT integration tests to the build -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <!--
                         <jndi.name.reservation>ejb:basicejb-ear/basicejb-ejb/ReservationEJB!org.myorg.basicejb.ejb.ReservationRemote</jndi.name.reservation>
-                        -->
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
