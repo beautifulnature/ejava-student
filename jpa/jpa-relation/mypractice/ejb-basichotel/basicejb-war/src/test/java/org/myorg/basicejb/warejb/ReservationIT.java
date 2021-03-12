@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class ReservationIT {
     private static final Logger logger = LoggerFactory.getLogger(ReservationIT.class);
     private static final String reservationJNDI = System.getProperty("jndi.name.reservation",
-            "ejb:basicejb-ear/basicejb-ejb/ReservationEJB!"+ReservationRemote.class.getName()); 
+            "ejb:/basicejb-war/ReservationEJB!"+ReservationRemote.class.getName()); 
     private InitialContext jndi;
     private ReservationRemote reservationist; 
     
@@ -35,8 +35,6 @@ public class ReservationIT {
     @Test
     public void testPing() throws NamingException {
         logger.info("*** testPing ***");
-        for (int i=0; i<10; i++) {
-            reservationist.ping();
-        }
+        reservationist.ping();
     }
 }

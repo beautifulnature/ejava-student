@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <jboss-web>
-    <!-- needed to always assure that version# does not get into JNDI name -->
-    <context-root>basicejb-war</context-root>
+    <!-- needed to always assure that version# does not get into JNDI name -->
+    <context-root>basicejb-war</context-root>
 </jboss-web>
