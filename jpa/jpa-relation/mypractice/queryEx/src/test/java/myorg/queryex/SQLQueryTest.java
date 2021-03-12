@@ -22,7 +22,7 @@ public class SQLQueryTest extends QueryBase {
      * This test method demonstrates building and executing a SQL query using 
      * the entity manager.
      */
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testSQLQuery() {
     	log.info("*** testSQLQuery ***");    	
     }
@@ -35,9 +35,49 @@ public class SQLQueryTest extends QueryBase {
      * and can simply specify the entity and have the mappings taken from the 
      * entity class' JPA annotations.  
      */
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testSQLResultMapping() {
-    	log.info("*** testSQLResultMapping ***");    	
+    	log.info("*** testSQLResultMapping ***");
+    	
+    	@SuppressWarnings("unchecked")
+		List<String> titles = em.createNativeQuery(
+                "select title from queryex_movie " +
+                "order by title ASC").getResultList();
+
+        for (String title : titles) {
+            log.debug(title);
+        }
+
+        assertEquals("unexpected number of titles", 7, titles.size());
+    }
+    
+//    @Test
+    public void testSQLResultMapping2() {
+
+        log.info("*** testSQLResultMapping2 ***");       
+
+        @SuppressWarnings("unchecked")
+        List<Movie> movies = em.createNativeQuery(
+                "select m.* from queryex_movie m " +
+                "join queryex_person p on p.id = m.director_id " +
+                "where p.first_name = 'Ron'" +
+                "order by title ASC", Movie.class).getResultList();
+
+        log.debug("result=" + movies);
+
+        for (Movie movie: movies) {
+
+            log.debug("em.contains(" + movie + ")=" + em.contains(movie));
+
+            assertTrue(movie + " not managed", em.contains(movie));
+        }
+
+        assertEquals("unexpected number of movies", 2, movies.size());
+        
+        log.debug("checking unmapped entity name");
+        
+        assertEquals("unexpected director first name", 
+                "Ron", movies.get(0).getDirector().getPerson().getFirstName());
     }
 
     /**
@@ -46,9 +86,126 @@ public class SQLQueryTest extends QueryBase {
      * are being returned here. This will cause some ambiguity with two of the 
      * entities and require some refinement in the next two test methods.
      */
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testSQLMultiResultMapping() {
-    	log.info("*** testSQLMultiResultMapping ***");    	
+    	log.info("*** testSQLMultiResultMapping ***");
+    	
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = em.createNativeQuery(
+                "select * from queryex_movie m " +
+                "join queryex_director dir on dir.person_id = m.director_id " +
+                "join queryex_person p on p.id = dir.person_id " +
+                "where p.first_name = 'Ron'" +
+                "order by title ASC", "Movie.movieMapping").getResultList();
+
+        log.debug("query returned " + results.size() + " results");
+
+        for (Object[] result: results) {
+
+            Movie movie = (Movie)result[0];
+            Director director = (Director) result[1];
+            Person person = (Person)result[2];
+
+            log.debug("em.contains(" + movie + ")=" + em.contains(movie));
+
+            log.debug("em.contains(" + director + ")=" + em.contains(director));
+
+            log.debug("em.contains(" + person + ")=" + em.contains(person));
+
+            assertTrue(movie + " not managed", em.contains(movie));
+
+            assertTrue(director + " not managed", em.contains(director));
+
+            assertTrue(person + " not managed", em.contains(person));
+        }
+
+        assertEquals("unexpected number of movies", 2, results.size());
+    }
+    
+//    @Test //@Ignore
+    public void testSQLMultiResultMapping3() {
+    	log.info("*** testSQLMultiResultMapping ***");
+    	
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = em.createNativeQuery(
+        		"select " +
+                        "m.id, m.minutes, m.rating, m.release_date, m.title, m.director_id, " +
+                        "dir.person_id, " +
+                        "p.id, p.first_name, p.last_name, p.birth_date " +
+                "from queryex_movie m " +
+                "join queryex_director dir on dir.person_id = m.director_id " +
+                "join queryex_person p on p.id = dir.person_id " +
+                "where p.first_name = 'Ron'" +
+                "order by title ASC", "Movie.movieMapping").getResultList();
+        
+        log.debug("query returned " + results.size() + " results");
+
+        for (Object[] result: results) {
+
+            Movie movie = (Movie)result[0];
+            Director director = (Director) result[1];
+            Person person = (Person)result[2];
+
+            log.debug("em.contains(" + movie + ")=" + em.contains(movie));
+
+            log.debug("em.contains(" + director + ")=" + em.contains(director));
+
+            log.debug("em.contains(" + person + ")=" + em.contains(person));
+
+            assertTrue(movie + " not managed", em.contains(movie));
+
+            assertTrue(director + " not managed", em.contains(director));
+
+            assertTrue(person + " not managed", em.contains(person));
+        }
+
+        assertEquals("unexpected number of movies", 2, results.size());
+    }
+    
+//    @Test //@Ignore
+    public void testSQLMultiResultMapping4() {
+    	log.info("*** testSQLMultiResultMapping ***");
+    	
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = em.createNativeQuery(
+                "select " +
+                        "m.id, m.minutes, m.rating, m.release_date, m.title, m.director_id, " +
+                        "dir.person_id, " +
+                        "p.id as p_id, " + //NOTICE: the alias for PERSON.ID
+                        "p.first_name, p.last_name, p.birth_date " +
+                "from queryex_movie m " +
+                "join queryex_director dir on dir.person_id = m.director_id " +
+                "join queryex_person p on p.id = dir.person_id " +
+                "where p.first_name = 'Ron'" +
+                "order by title ASC", "Movie.movieMapping2").getResultList();
+        
+        log.debug("query returned " + results.size() + " results");
+
+        for (Object[] result: results) {
+
+            Movie movie = (Movie)result[0];
+            Director director = (Director) result[1];
+            Person person = (Person)result[2];
+
+            log.debug("em.contains(" + movie + ")=" + em.contains(movie));
+
+            log.debug("em.contains(" + director + ")=" + em.contains(director));
+
+            log.debug("em.contains(" + person + ")=" + em.contains(person));
+
+            assertTrue(movie + " not managed", em.contains(movie));
+
+            assertTrue(director + " not managed", em.contains(director));
+
+            assertTrue(person + " not managed", em.contains(person));
+        }
+
+        assertEquals("unexpected number of movies", 2, results.size());
+        
+        log.debug("checking unmapped entity name");
+
+        assertEquals("unexpected director first name", 
+                "Ron", ((Movie)((Object[])results.get(0))[0]).getDirector().getPerson().getFirstName());
     }
 
     /**

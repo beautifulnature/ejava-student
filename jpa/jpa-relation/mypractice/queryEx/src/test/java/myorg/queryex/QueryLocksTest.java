@@ -58,17 +58,37 @@ public class QueryLocksTest extends QueryBase {
     	public void run() {
     		try {
     			log.debug(context + " selecting with lockMode=" + lockMode);
-    			List<Actor> actors = em_.createQuery(
-					"select a from Actor a JOIN a.person as p " +
-					"where p.firstName=:firstName and p.lastName=:lastName " +
-					"or p.firstName='" + context + "'", Actor.class)
-					.setLockMode(lockMode)
-					.setParameter("firstName", actor.getFirstName())
-					.setParameter("lastName", actor.getLastName())
-					.setMaxResults(1)
-					.getResultList();
+    			
+    			//h2 won't let us lock on a JOIN -- use subquery
+                List<Actor> actors = em_.createQuery(
+                        "select a from Actor a "
+                        + "where a.person in ("
+                        + "select p from Person p "
+                        + "where p.firstName=:firstName and p.lastName=:lastName "
+                        + "or p.firstName='" + context + "')", Actor.class)
+                        .setLockMode(lockMode)
+                        .setParameter("firstName", actor.getFirstName())
+                        .setParameter("lastName", actor.getLastName())
+                        .setMaxResults(1)
+                        .getResultList();
+                
+				/*
+				 * List<Actor> actors = em_.createQuery(
+				 * "select a from Actor a JOIN a.person as p " +
+				 * "where p.firstName=:firstName and p.lastName=:lastName " + "or p.firstName='"
+				 * + context + "'", Actor.class) .setLockMode(lockMode)
+				 * .setParameter("firstName", actor.getFirstName()) .setParameter("lastName",
+				 * actor.getLastName()) .setMaxResults(1) .getResultList();
+				 */
+                try { 
+                	log.debug(context + " sleeping " + sleepTime + " msecs"); 
+                	Thread.sleep(sleepTime); 
+                } catch (Exception ex){}
     			if (actors.size()==0) {
         			log.debug(context + " creating entity");
+        			if (!em_.contains(actor.getPerson())) {
+                        em_.persist(actor.getPerson());
+                    }
     				em_.persist(actor);
     				action=Action.INSERT;
     			} else {
@@ -77,10 +97,6 @@ public class QueryLocksTest extends QueryBase {
     				action=Action.UPDATE;
     			}
     			em_.flush();
-    			try { 
-    				log.debug(context + " sleeping " + sleepTime + " msecs"); 
-    				Thread.sleep(sleepTime); 
-    			} catch (Exception ex){}
     			log.debug(context + " committing transaction version=" + actor.getVersion());
    				em_.getTransaction().commit();
     			log.debug(context + " committed transaction version=" + actor.getVersion());
@@ -89,7 +105,8 @@ public class QueryLocksTest extends QueryBase {
     			em_.getTransaction().rollback();
     			action = Action.FAIL; errorText = ex.toString();
     		} finally {
-    			em_.close(); em_=null;
+    			em_.close();
+    			em_=null;
     		}
     	}
     }
@@ -114,7 +131,8 @@ public class QueryLocksTest extends QueryBase {
     	//start each of the threads
     	List<Writer> working = new ArrayList<Writer>();
     	for (Writer writer : writers) {
-    		working.add(writer); writer.start();
+    		working.add(writer);
+    		writer.start();
     	}
 
     	//run until all writers complete
@@ -140,24 +158,43 @@ public class QueryLocksTest extends QueryBase {
 		return actors.size();
     }
     
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testSimple() {
     	log.info("*** testPersistentSimple ***");
+    	
+    	assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.NONE, 1));
     }
 
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testNONE() {
     	log.info("*** testNONE ***");
+    	
+    	int count=testUpsert(LockModeType.NONE, 5);
+
+        for (int i=0; i<10 && count<=1; i++) {
+
+            //can't always trigger race condition -- so retry
+            cleanup(em);
+            populate(em);
+
+            count=testUpsert(LockModeType.NONE, 5);
+        }
+
+        assertTrue("unexpected number of actors", count > 1);
     }
 
-//    @Test @Ignore
+//    @Test //@Ignore
     public void testPessimisticWrite1() {
     	log.info("*** testPersistentWrite1 ***");
+    	
+    	assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.PESSIMISTIC_WRITE, 1));
     }
 
-//    @Test @Ignore
+    @Test //@Ignore
     public void testPessimisticWrite() {
     	log.info("*** testPersistentWrite ***");
+    	
+    	assertEquals("unexpected number of actors", 1, testUpsert(LockModeType.PESSIMISTIC_WRITE, 5));
     }
 
 //    @Test @Ignore
