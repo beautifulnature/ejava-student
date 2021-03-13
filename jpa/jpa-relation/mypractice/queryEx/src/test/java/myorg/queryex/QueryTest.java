@@ -272,7 +272,7 @@ public class QueryTest extends QueryBase {
      * This test method demonstrates the ability to create a result class to 
      * encapsulate the results returned from a value query.
      */
-//    @Test
+    @Test
 	public void testResultClass() {
 		log.info("*** testResultClass ***");
 
