@@ -48,7 +48,7 @@ public class VenueMgmtIT {
     }
     
     @Test 
-    @Ignore
+//    @Ignore
     public void venueWAR() throws NamingException {
         logger.info("*** venueWAR ***");
         

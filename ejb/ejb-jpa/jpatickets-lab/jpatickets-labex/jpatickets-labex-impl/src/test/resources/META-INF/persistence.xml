@@ -24,9 +24,9 @@
 
             <!-- these can be helpful in both environments when debugging
             <property name="hibernate.jdbc.batch_size" value="0"/>
+             -->            
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
-             -->            
             
             <!-- this applies to only the ***demo***-nature of this example -->
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>

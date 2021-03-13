@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class VenueMgmtEJB implements VenueMgmtRemote {
     private static final Logger logger = LoggerFactory.getLogger(VenueMgmtEJB.class);
     
-    //@PersistenceContext(unitName="jpatickets-labex")
+    @PersistenceContext(unitName="jpatickets-labex")
     private EntityManager em;
     
     private VenueMgmt venueMgmt;
