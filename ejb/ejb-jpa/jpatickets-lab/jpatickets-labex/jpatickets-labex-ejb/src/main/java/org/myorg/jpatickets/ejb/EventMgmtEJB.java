@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class EventMgmtEJB implements EventMgmtRemote {
     private static final Logger logger = LoggerFactory.getLogger(EventMgmtEJB.class);
     
-    //@PersistenceContext(unitName="jpatickets-labex")
+    @PersistenceContext(unitName="jpatickets-labex")
     private EntityManager em;
     
     private EventMgmtDAO edao;

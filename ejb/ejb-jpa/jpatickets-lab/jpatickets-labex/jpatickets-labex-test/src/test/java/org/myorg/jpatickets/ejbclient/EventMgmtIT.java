@@ -32,7 +32,7 @@ public class EventMgmtIT {
     }
     
     @Test
-    @Ignore
+//    @Ignore
     public void eventSerializable() throws UnavailableException {
         logger.info("*** eventSerializable ***");
         Venue venue = venueMgmt.createVenue(tf.makeVenue(), 1, 2, 2);
