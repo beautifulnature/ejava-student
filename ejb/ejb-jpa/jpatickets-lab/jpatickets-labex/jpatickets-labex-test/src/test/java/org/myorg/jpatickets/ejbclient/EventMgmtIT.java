@@ -32,7 +32,7 @@ public class EventMgmtIT {
     }
     
     @Test
-//    @Ignore
+    @Ignore
     public void eventSerializable() throws UnavailableException {
         logger.info("*** eventSerializable ***");
         Venue venue = venueMgmt.createVenue(tf.makeVenue(), 1, 2, 2);
@@ -66,8 +66,8 @@ public class EventMgmtIT {
         Venue venue = venueMgmt.createVenue(tf.makeVenue(), 1, 2, 2);
         Event event = eventMgmt.createEvent(tf.makeEvent(), venue);
         
-        event=eventMgmt.getEvent(event.getId());
-//        event=eventMgmt.getEventTouchedSome(event.getId());
+//        event=eventMgmt.getEvent(event.getId());
+        event=eventMgmt.getEventTouchedSome(event.getId());
         assertNotNull("null tickets for event", event.getTickets());
         assertTrue("no tickets for event", event.getTickets().size() > 0);
         for (Ticket t: event.getTickets()) {
@@ -98,8 +98,6 @@ public class EventMgmtIT {
         }
     }
     
-    
-    
     @Test
     @Ignore
     public void eventCleansed() throws UnavailableException {
@@ -109,8 +107,8 @@ public class EventMgmtIT {
         
         logger.info("event.tickets.class={}", event.getTickets().getClass());
         assertTrue("missing provider class", event.getTickets().getClass().getName().contains("org.hibernate"));
-        event=eventMgmt.getEvent(event.getId());
-//        event=eventMgmt.getEventCleansed(event.getId());
+//        event=eventMgmt.getEvent(event.getId());
+        event=eventMgmt.getEventCleansed(event.getId());
         logger.info("(cleansed)event.tickets.class={}", event.getTickets().getClass());
         assertFalse("unexpected provider class", event.getTickets().getClass().getName().contains("org.hibernate"));
     }
@@ -136,7 +134,7 @@ public class EventMgmtIT {
     }
     
     @Test
-    @Ignore
+//    @Ignore
     public void eventFetchedMore() throws UnavailableException {
         logger.info("*** eventFetchedMore ***");
         Venue venue = venueMgmt.createVenue(tf.makeVenue(), 1, 2, 2);
